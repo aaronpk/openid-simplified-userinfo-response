@@ -53,7 +53,7 @@ This profile defines an extension to the OpenID Connect OAuth Token Endpoint Res
 
 # Introduction
 
-This profile defines an extension to the OpenID Connect [[OpenID]] OAuth Token Endpoint Response  to allow a Relying Party (RP) to retrieve only the authenticated Subject Identifier (sub) directly as a top-level field, rather than being encapsulated within a full ID Token.
+This profile defines an extension to the OpenID Connect [OpenID] OAuth Token Endpoint Response  to allow a Relying Party (RP) to retrieve only the authenticated Subject Identifier (sub) directly as a top-level field, rather than being encapsulated within a full ID Token.
 
 This simplifies client implementations that require only the unique user identifier and wish to avoid the overhead, complexity, and dependency management associated with parsing and validating a JSON Web Token (JWT).
 
@@ -91,7 +91,7 @@ GET /authorize?
   &code_challenge=dy57vyachQ...&code_challenge_method=S256
 ```
 
-Note: This is not limited to the [[RFC6749]] Authorization Code flow and applies the same to extensions such as Pushed Authorization Request [[RFC9126]].
+Note: This is not limited to the [RFC6749] Authorization Code flow and applies the same to extensions such as Pushed Authorization Request [RFC9126].
 
 # Token Endpoint Response
 
@@ -105,7 +105,7 @@ The value of the `sub` MUST be identical to the value of the `sub` that would ha
 
 * If the Client included the `subject` scope in the initial Authorization Request, the Authorization Server MUST include the `sub` parameter in the Token Response.
 * If the `sub` parameter is included in the Token Response, the Authorization Server MUST NOT include the `id_token` parameter.
-* No change is made to the requirements of the standard OAuth 2.0 [[RFC6749]] parameters in the response or any additional parameters defined by extensions.
+* No change is made to the requirements of the standard OAuth 2.0 [RFC6749] parameters in the response or any additional parameters defined by extensions.
 
 Example successful token response
 
@@ -129,7 +129,7 @@ The Subject Identifier MUST NOT be returned in the Authorization Response (the U
 
 ## Authorization Code Flow
 
-If using the Authorization Code flow, or any flow that utilizes a browser redirect, the flow MUST be secured with PKCE as defined in [[RFC7636]] to prevent authorization code injection attacks.
+If using the Authorization Code flow, or any flow that utilizes a browser redirect, the flow MUST be secured with PKCE as defined in [RFC7636] to prevent authorization code injection attacks.
 
 ## Tamper Resistance
 
