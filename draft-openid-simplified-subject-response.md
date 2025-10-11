@@ -8,16 +8,16 @@ submissiontype: independent
 number:
 date:
 v: 3
-#area: 
-workgroup: "OpenID Connect A/B"
+# area:
+# workgroup: "OpenID Connect A/B"
 keyword:
  - openid
 venue:
-  group: "OpenID Connect A/B"
-  type: Working Group
-  mail: openid-specs-ab@lists.openid.net
-  github: aaronpk/openid-simplified-subject-response
-  latest: https://github.com/aaronpk/openid-simplified-subject-response
+#  group: "OpenID Connect A/B"
+#  type: Working Group
+#  mail: openid-specs-ab@lists.openid.net
+  github: "aaronpk/openid-simplified-subject-response"
+  latest: "https://aaronpk.github.io/openid-simplified-subject-response/draft-openid-simplified-subject-response.html"
 
 author:
  -
