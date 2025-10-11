@@ -80,15 +80,13 @@ The Client SHOULD include the `subject` scope along with the standard `openid` s
 
 Example request:
 
-```
-GET /authorize?
-  response_type=code
-  &client_id=e69b14fe3fdcf1b432deb0c
-  &scope=openid%20subject
-  &state=9e6d47801c833bfc8
-  &redirect_uri=https%3A%2F%2Fclient.example.com%2Fcb
-  &code_challenge=dy57vyachQ...&code_challenge_method=S256
-```
+    GET /authorize?
+      response_type=code
+      &client_id=e69b14fe3fdcf1b432deb0c
+      &scope=openid%20subject
+      &state=9e6d47801c833bfc8
+      &redirect_uri=https%3A%2F%2Fclient.example.com%2Fcb
+      &code_challenge=dy57vyachQ...&code_challenge_method=S256
 
 Note: This is not limited to the [RFC6749] Authorization Code flow and applies the same to extensions such as Pushed Authorization Request [RFC9126].
 
@@ -108,14 +106,12 @@ The value of the `sub` MUST be identical to the value of the `sub` that would ha
 
 Example successful token response
 
-```
-{
-  "access_token": "a5c64fbb3e03d973d3c7ef",
-  "token_type": "Bearer",
-  "expires_in": 3600,
-  "sub": "b46b2f1f2b7686d"
-}
-```
+    {
+      "access_token": "a5c64fbb3e03d973d3c7ef",
+      "token_type": "Bearer",
+      "expires_in": 3600,
+      "sub": "b46b2f1f2b7686d"
+    }
 
 
 # Security Considerations
