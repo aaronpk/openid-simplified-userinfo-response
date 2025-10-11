@@ -9,11 +9,11 @@ number:
 date:
 v: 3
 # area:
-# workgroup: "OpenID Connect A/B"
+# workgroup: "OpenID Connect"
 keyword:
  - openid
 venue:
-#  group: "OpenID Connect A/B"
+#  group: "OpenID Connect"
 #  type: Working Group
 #  mail: openid-specs-ab@lists.openid.net
   github: "aaronpk/openid-simplified-subject-response"
