@@ -7,7 +7,6 @@ docname: draft-openid-simplified-subject-response-latest
 submissiontype: independent
 number:
 date:
-consensus: true
 v: 3
 #area: 
 workgroup: "OpenID Connect A/B"
