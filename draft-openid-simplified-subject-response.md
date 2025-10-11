@@ -3,7 +3,7 @@ title: "OpenID Connect Simplified Subject Response"
 abbrev: "Simplified Subject Response"
 category: std
 
-docname: openid-simplified-subject-response-latest
+docname: draft-openid-simplified-subject-response-latest
 submissiontype: independent
 number:
 date:
