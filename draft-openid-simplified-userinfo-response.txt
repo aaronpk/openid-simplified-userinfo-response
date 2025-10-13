@@ -9,7 +9,7 @@ Expires: 16 April 2026
 
 
               OpenID Connect Simplified Userinfo Response
-            draft-openid-simplified-subject-response-latest
+            draft-openid-simplified-userinfo-response-latest
 
 Abstract
 
@@ -24,10 +24,10 @@ About This Document
    This note is to be removed before publishing as an RFC.
 
    The latest revision of this draft can be found at
-   https://aaronpk.github.io/openid-simplified-subject-response/draft-
-   openid-simplified-subject-response.html.  Status information for this
-   document may be found at https://datatracker.ietf.org/doc/draft-
-   openid-simplified-subject-response/.
+   https://aaronpk.github.io/openid-simplified-userinfo-response/draft-
+   openid-simplified-userinfo-response.html.  Status information for
+   this document may be found at https://datatracker.ietf.org/doc/draft-
+   openid-simplified-userinfo-response/.
 
    Discussion of this document takes place on the OpenID Connect Working
    Group mailing list (mailto:openid-specs-ab@lists.openid.net).
