@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
-<title>OpenID Connect Simplified Subject Response</title>
+<title>OpenID Connect Simplified Userinfo Response</title>
 <meta content="Aaron Parecki" name="author">
 <meta content="
-       This profile defines an extension to the OpenID Connect OAuth Token Endpoint Response to allow a Relying Party (RP) to retrieve only the authenticated Subject Identifier (sub) directly as a top-level field, rather than being encapsulated within a full ID Token. 
+       This specification defines an extension to the OpenID Connect OAuth Token Endpoint Response to allow a Relying Party (RP) to retrieve the user's info (e.g. subject identifier or profile info) directly in the token response, rather than being encapsulated within a full ID Token. 
     " name="description">
 <meta content="xml2rfc 3.30.2" name="generator">
 <meta content="openid" name="keyword">
@@ -1043,12 +1043,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <table class="ears">
 <thead><tr>
 <td class="left">Internet-Draft</td>
-<td class="center">Simplified Subject Response</td>
+<td class="center">Simplified Userinfo Response</td>
 <td class="right">October 2025</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Parecki</td>
-<td class="center">Expires 14 April 2026</td>
+<td class="center">Expires 16 April 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1061,12 +1061,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-openid-simplified-subject-response-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-10-11" class="published">11 October 2025</time>
+<time datetime="2025-10-13" class="published">13 October 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-04-14">14 April 2026</time></dd>
+<dd class="expires"><time datetime="2026-04-16">16 April 2026</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1076,10 +1076,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </dd>
 </dl>
 </div>
-<h1 id="title">OpenID Connect Simplified Subject Response</h1>
+<h1 id="title">OpenID Connect Simplified Userinfo Response</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">This profile defines an extension to the OpenID Connect OAuth Token Endpoint Response to allow a Relying Party (RP) to retrieve only the authenticated Subject Identifier (sub) directly as a top-level field, rather than being encapsulated within a full ID Token.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">This specification defines an extension to the OpenID Connect OAuth Token Endpoint Response to allow a Relying Party (RP) to retrieve the user's info (e.g. subject identifier or profile info) directly in the token response, rather than being encapsulated within a full ID Token.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1114,7 +1114,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 14 April 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 16 April 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1147,21 +1147,36 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-requesting-the-simplified-s" class="internal xref">Requesting the Simplified Subject</a></p>
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-simplified-subject-response" class="internal xref">Simplified Subject Response</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
-                <p id="section-toc.1-1.3.2.1.1" class="keepWithNext"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-scope" class="internal xref">Scope</a></p>
+                <p id="section-toc.1-1.3.2.1.1" class="keepWithNext"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-requesting-the-simplified-s" class="internal xref">Requesting the Simplified Subject Response</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
                 <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-authorization-request" class="internal xref">Authorization Request</a></p>
 </li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.3">
+                <p id="section-toc.1-1.3.2.3.1"><a href="#section-3.3" class="auto internal xref">3.3</a>.  <a href="#name-token-endpoint-response" class="internal xref">Token Endpoint Response</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.4">
+                <p id="section-toc.1-1.3.2.4.1"><a href="#section-3.4" class="auto internal xref">3.4</a>.  <a href="#name-response-rules" class="internal xref">Response Rules</a></p>
+</li>
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-token-endpoint-response" class="internal xref">Token Endpoint Response</a></p>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-simplified-userinfo-respons" class="internal xref">Simplified Userinfo Response</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
-                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-response-rules" class="internal xref">Response Rules</a></p>
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-requesting-the-simplified-su" class="internal xref">Requesting the Simplified Subject Response</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-authorization-request-2" class="internal xref">Authorization Request</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-token-endpoint-response-2" class="internal xref">Token Endpoint Response</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
+                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-response-rules-2" class="internal xref">Response Rules</a></p>
 </li>
             </ul>
 </li>
@@ -1208,9 +1223,18 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">This profile defines an extension to the OpenID Connect <span>[<a href="#OpenID" class="cite xref">OpenID</a>]</span> OAuth Token Endpoint Response  to allow a Relying Party (RP) to retrieve only the authenticated Subject Identifier (sub) directly as a top-level field, rather than being encapsulated within a full ID Token.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2">This simplifies client implementations that require only the unique user identifier and wish to avoid the overhead, complexity, and dependency management associated with parsing and validating a JSON Web Token (JWT).<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">This mechanism <span class="bcp14">MUST NOT</span> be used as a replacement for a full OIDC flow when the RP requires additional context of the user’s authentication, or non-repudiation, which are provided by a signed ID Token.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-1">This specification defines an extension to the OpenID Connect <span>[<a href="#OpenID" class="cite xref">OpenID</a>]</span> OAuth Token Endpoint Response to allow a Relying Party (RP) to retrieve the user's info directly in the token response, rather than being encapsulated within a full ID Token.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">This simplifies client implementations that do not require signed statements about the user's authentication from the OpenID Provider, and wish to avoid the overhead, complexity, and dependency management associated with parsing and validating a JSON Web Token (JWT).<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">This specification provides two different ways the OpenID Provider can return info in the Token Response:<a href="#section-1-3" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-4.1">
+          <p id="section-1-4.1.1">The "Simplified Subject Response", returning only the <code>sub</code> claim in the token response<a href="#section-1-4.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-1-4.2">
+          <p id="section-1-4.2.1">The "Simplified Userinfo Response", returning a new top-level property <code>id_info</code> as a JSON object containing the same claims that would have been in the ID token.<a href="#section-1-4.2.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-1-5">This mechanism <span class="bcp14">MUST NOT</span> be used as a replacement for a full OIDC flow when the RP requires a signed response, such as when the RP needs non-repudiation of the claims in the ID token.<a href="#section-1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions-and-definitions">
@@ -1224,16 +1248,16 @@ described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</s
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="requesting-the-simplified-subject">
+<div id="simplified-subject-response">
 <section id="section-3">
-      <h2 id="name-requesting-the-simplified-s">
-<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-requesting-the-simplified-s" class="section-name selfRef">Requesting the Simplified Subject</a>
+      <h2 id="name-simplified-subject-response">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-simplified-subject-response" class="section-name selfRef">Simplified Subject Response</a>
       </h2>
 <p id="section-3-1">To signal its intent to receive only the Subject Identifier in the Token Response, the Relying Party (OAuth Client) uses a new scope value in the Authorization Request.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<div id="scope">
+<div id="requesting-the-simplified-subject-response">
 <section id="section-3.1">
-        <h3 id="name-scope">
-<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-scope" class="section-name selfRef">Scope</a>
+        <h3 id="name-requesting-the-simplified-s">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-requesting-the-simplified-s" class="section-name selfRef">Requesting the Simplified Subject Response</a>
         </h3>
 <p id="section-3.1-1">This specification defines a new scope value: <code>subject</code><a href="#section-3.1-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-3.1-2">
@@ -1266,34 +1290,34 @@ GET /authorize?
 <p id="section-3.2-4">Note: This is not limited to the <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> Authorization Code flow and applies the same to extensions such as Pushed Authorization Request <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>.<a href="#section-3.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
+<div id="token-endpoint-response">
+<section id="section-3.3">
+        <h3 id="name-token-endpoint-response">
+<a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-token-endpoint-response" class="section-name selfRef">Token Endpoint Response</a>
+        </h3>
+<p id="section-3.3-1">This specification defines a new field to be returned in the Token Endpoint response: <code>sub</code>.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
+<p id="section-3.3-2">In the Authorization Code flow, upon successful validation of the Authorization Code, the PKCE Code Verifier, and optional client authentication, the Authorization Server constructs a Token Response including the new field <code>sub</code>.<a href="#section-3.3-2" class="pilcrow">¶</a></p>
+<p id="section-3.3-3">The value of the <code>sub</code> <span class="bcp14">MUST</span> be identical to the value of the <code>sub</code> that would have otherwise been returned in the ID token.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="token-endpoint-response">
-<section id="section-4">
-      <h2 id="name-token-endpoint-response">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-token-endpoint-response" class="section-name selfRef">Token Endpoint Response</a>
-      </h2>
-<p id="section-4-1">This specification defines a new field to be returned in the Token Endpoint response: <code>sub</code>.<a href="#section-4-1" class="pilcrow">¶</a></p>
-<p id="section-4-2">In the Authorization Code flow, upon successful validation of the Authorization Code, the PKCE Code Verifier, and optional client authentication, the Authorization Server constructs a Token Response including the new field <code>sub</code>.<a href="#section-4-2" class="pilcrow">¶</a></p>
-<p id="section-4-3">The value of the <code>sub</code> <span class="bcp14">MUST</span> be identical to the value of the <code>sub</code> that would have otherwise been returned in the ID token.<a href="#section-4-3" class="pilcrow">¶</a></p>
 <div id="response-rules">
-<section id="section-4.1">
+<section id="section-3.4">
         <h3 id="name-response-rules">
-<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-response-rules" class="section-name selfRef">Response Rules</a>
+<a href="#section-3.4" class="section-number selfRef">3.4. </a><a href="#name-response-rules" class="section-name selfRef">Response Rules</a>
         </h3>
 <ul class="normal">
-<li class="normal" id="section-4.1-1.1">
-            <p id="section-4.1-1.1.1">If the Client included the <code>subject</code> scope in the initial Authorization Request, the Authorization Server <span class="bcp14">MUST</span> include the <code>sub</code> parameter in the Token Response.<a href="#section-4.1-1.1.1" class="pilcrow">¶</a></p>
+<li class="normal" id="section-3.4-1.1">
+            <p id="section-3.4-1.1.1">If the Client included the <code>subject</code> scope in the initial Authorization Request, the OpenID Provider <span class="bcp14">MUST</span> include the <code>sub</code> parameter in the Token Response. The OpenID Provider <span class="bcp14">MAY</span> also return the <code>sub</code> parameter if the Client did not include the <code>subject</code> scope in the initial Authorization Request.<a href="#section-3.4-1.1.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-4.1-1.2">
-            <p id="section-4.1-1.2.1">If the <code>sub</code> parameter is included in the Token Response, the Authorization Server <span class="bcp14">MUST NOT</span> include the <code>id_token</code> parameter.<a href="#section-4.1-1.2.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-3.4-1.2">
+            <p id="section-3.4-1.2.1">If the <code>sub</code> parameter is included in the Token Response, the Authorization Server <span class="bcp14">MUST NOT</span> include the <code>id_token</code> parameter.<a href="#section-3.4-1.2.1" class="pilcrow">¶</a></p>
 </li>
-          <li class="normal" id="section-4.1-1.3">
-            <p id="section-4.1-1.3.1">No change is made to the requirements of the standard OAuth 2.0 <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> parameters in the response or any additional parameters defined by extensions.<a href="#section-4.1-1.3.1" class="pilcrow">¶</a></p>
+          <li class="normal" id="section-3.4-1.3">
+            <p id="section-3.4-1.3.1">No change is made to the requirements of the standard OAuth 2.0 <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> parameters in the response or any additional parameters defined by extensions.<a href="#section-3.4-1.3.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
-<p id="section-4.1-2">Example successful token response<a href="#section-4.1-2" class="pilcrow">¶</a></p>
-<div class="alignLeft art-text artwork" id="section-4.1-3">
+<p id="section-3.4-2">Example successful token response<a href="#section-3.4-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-3.4-3">
 <pre>
 {
   "access_token": "a5c64fbb3e03d973d3c7ef",
@@ -1301,7 +1325,95 @@ GET /authorize?
   "expires_in": 3600,
   "sub": "b46b2f1f2b7686d"
 }
-</pre><a href="#section-4.1-3" class="pilcrow">¶</a>
+</pre><a href="#section-3.4-3" class="pilcrow">¶</a>
+</div>
+</section>
+</div>
+</section>
+</div>
+<div id="simplified-userinfo-response">
+<section id="section-4">
+      <h2 id="name-simplified-userinfo-respons">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-simplified-userinfo-respons" class="section-name selfRef">Simplified Userinfo Response</a>
+      </h2>
+<p id="section-4-1">To signal its intent to receive the user info in the Token Response instead of in an ID token, the Relying Party (OAuth Client) uses a new scope value in the Authorization Request.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<div id="requesting-the-simplified-subject-response-1">
+<section id="section-4.1">
+        <h3 id="name-requesting-the-simplified-su">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-requesting-the-simplified-su" class="section-name selfRef">Requesting the Simplified Subject Response</a>
+        </h3>
+<p id="section-4.1-1">This specification defines a new scope value: <code>id_info</code><a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<span class="break"></span><dl class="dlParallel" id="section-4.1-2">
+          <dt id="section-4.1-2.1"><code>id_info</code></dt>
+          <dd style="margin-left: 1.5em" id="section-4.1-2.2">
+            <p id="section-4.1-2.2.1">Requests that the Authorization Server (AS) return the user info directly in the Token Response, and omit the <code>id_token</code>.<a href="#section-4.1-2.2.1" class="pilcrow">¶</a></p>
+</dd>
+        <dd class="break"></dd>
+</dl>
+</section>
+</div>
+<div id="authorization-request-1">
+<section id="section-4.2">
+        <h3 id="name-authorization-request-2">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-authorization-request-2" class="section-name selfRef">Authorization Request</a>
+        </h3>
+<p id="section-4.2-1">The Client <span class="bcp14">SHOULD</span> include the <code>id_info</code> scope along with the standard <code>openid</code> scope and any other required scopes in the Authorization Request.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-2">Example request:<a href="#section-4.2-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.2-3">
+<pre>
+GET /authorize?
+  response_type=code
+  &amp;client_id=e69b14fe3fdcf1b432deb0c
+  &amp;scope=openid%20id_info
+  &amp;state=9e6d47801c833bfc8
+  &amp;redirect_uri=https%3A%2F%2Fclient.example.com%2Fcb
+  &amp;code_challenge=dy57vyachQ...&amp;code_challenge_method=S256
+</pre><a href="#section-4.2-3" class="pilcrow">¶</a>
+</div>
+<p id="section-4.2-4">Note: This is not limited to the <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> Authorization Code flow and applies the same to extensions such as Pushed Authorization Request <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>.<a href="#section-4.2-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="token-endpoint-response-1">
+<section id="section-4.3">
+        <h3 id="name-token-endpoint-response-2">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-token-endpoint-response-2" class="section-name selfRef">Token Endpoint Response</a>
+        </h3>
+<p id="section-4.3-1">This specification defines a new field to be returned in the Token Endpoint response: <code>id_info</code>.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
+<p id="section-4.3-2">In the Authorization Code flow, upon successful validation of the Authorization Code, the PKCE Code Verifier, and optional client authentication, the Authorization Server constructs a Token Response including the new field <code>id_info</code>.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
+<p id="section-4.3-3">The value of the <code>id_info</code> is a JSON object, and the claims <span class="bcp14">MUST</span> be identical to the claims about the user and their authentication that would have otherwise been returned in the ID token. The following claims about the OpenID Provider and ID token itself <span class="bcp14">SHOULD NOT</span> be returned: <code>iss</code>, <code>aud</code>, <code>nonce</code>.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="response-rules-1">
+<section id="section-4.4">
+        <h3 id="name-response-rules-2">
+<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-response-rules-2" class="section-name selfRef">Response Rules</a>
+        </h3>
+<ul class="normal">
+<li class="normal" id="section-4.4-1.1">
+            <p id="section-4.4-1.1.1">If the Client included the <code>id_info</code> scope in the initial Authorization Request, the OpenID Provider <span class="bcp14">MUST</span> include the <code>id_info</code> parameter in the Token Response. The OpenID Provider <span class="bcp14">MAY</span> also return the <code>id_info</code> parameter if the Client did not include the <code>id_info</code> scope in the initial Authorization Request.<a href="#section-4.4-1.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.4-1.2">
+            <p id="section-4.4-1.2.1">If the <code>id_info</code> parameter is included in the Token Response, the Authorization Server <span class="bcp14">MUST NOT</span> include the <code>id_token</code> parameter.<a href="#section-4.4-1.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.4-1.3">
+            <p id="section-4.4-1.3.1">No change is made to the requirements of the standard OAuth 2.0 <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> parameters in the response or any additional parameters defined by extensions.<a href="#section-4.4-1.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+<p id="section-4.4-2">Example successful token response<a href="#section-4.4-2" class="pilcrow">¶</a></p>
+<div class="alignLeft art-text artwork" id="section-4.4-3">
+<pre>
+{
+  "access_token": "a5c64fbb3e03d973d3c7ef",
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "id_info": {
+    "sub": "b46b2f1f2b7686d",
+    "exp": 1311281970,
+    "auth_time": 1311280969,
+    "acr": "phr"
+  }
+}
+</pre><a href="#section-4.4-3" class="pilcrow">¶</a>
 </div>
 </section>
 </div>
@@ -1317,8 +1429,8 @@ GET /authorize?
         <h3 id="name-token-endpoint">
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-token-endpoint" class="section-name selfRef">Token Endpoint</a>
         </h3>
-<p id="section-5.1-1">The Subject Identifier response field <span class="bcp14">MUST</span> only be returned from the token endpoint.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.1-2">The Subject Identifier <span class="bcp14">MUST NOT</span> be returned in the Authorization Response (the URL redirect back to the client), as this passes through the front channel and this shortcut provides no mechanism to for the RP to validate the legitimacy of the value in the response.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+<p id="section-5.1-1">The Subject Identifier and Userinfo response fields <span class="bcp14">MUST</span> only be returned from the token endpoint.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">The Subject Identifier and Userinfo <span class="bcp14">MUST NOT</span> be returned in the Authorization Response (the URL redirect back to the client), as this passes through the front channel and this shortcut provides no mechanism to for the RP to validate the legitimacy of the value in the response.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authorization-code-flow">
@@ -1334,7 +1446,7 @@ GET /authorize?
         <h3 id="name-tamper-resistance">
 <a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-tamper-resistance" class="section-name selfRef">Tamper Resistance</a>
         </h3>
-<p id="section-5.3-1">The simplified response defined here provides no cryptographic signature over the <code>sub</code> value. Its integrity and authenticity are solely reliant on the security of the transport layer of the Token Endpoint and the preceding Authorization Code + PKCE exchange.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
+<p id="section-5.3-1">The simplified response defined here provides no cryptographic signature over the <code>sub</code> or <code>id_info</code> values. Their integrity and authenticity are solely reliant on the security of the transport layer of the Token Endpoint and the preceding Authorization Code + PKCE exchange.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1401,7 +1513,7 @@ GET /authorize?
       <h2 id="name-acknowledgments">
 <a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
       </h2>
-<p id="appendix-A-1">TODO acknowledge.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-1">The authors would like to thank the following people for their review and contributions to this draft: Brian Campbell.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authors-addresses">
