@@ -3,7 +3,7 @@ title: "OpenID Connect Simplified Userinfo Response"
 abbrev: "Simplified Userinfo Response"
 category: info
 
-docname: draft-openid-simplified-subject-response-latest
+docname: draft-openid-simplified-userinfo-response-latest
 submissiontype: independent
 number:
 date:
@@ -17,7 +17,7 @@ venue:
   type: Working Group
   mail: openid-specs-ab@lists.openid.net
   github: "aaronpk/openid-simplified-subject-response"
-  latest: "https://aaronpk.github.io/openid-simplified-subject-response/draft-openid-simplified-subject-response.html"
+  latest: "https://aaronpk.github.io/openid-simplified-userinfo-response/draft-openid-simplified-userinfo-response.html"
 
 author:
  -
