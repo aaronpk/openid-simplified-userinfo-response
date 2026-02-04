@@ -1,6 +1,6 @@
 <!-- regenerate: off (set to off if you edit this file) -->
 
-# OpenID Connect Simplified Subject Response
+# OpenID Connect Simplified Userinfo Response
 
 This is the working area for the individual Internet-Draft, "OpenID Connect Simplified Userinfo Response".
 
