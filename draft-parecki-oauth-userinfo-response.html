@@ -4,30 +4,31 @@
 <meta charset="utf-8">
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
-<title>OpenID Connect Simplified Userinfo Response</title>
+<title>OAuth Userinfo Response</title>
 <meta content="Aaron Parecki" name="author">
 <meta content="
-       This specification defines an extension to the OpenID Connect OAuth Token Endpoint Response to allow a Relying Party (RP) to retrieve the user's info (e.g. subject identifier or profile info) directly in the token response, rather than being encapsulated within a full ID Token. 
+       This specification defines an extension to the OAuth 2.0 Token Endpoint Response to allow a client to retrieve information about the user who authorized the request (e.g. a subject identifier or profile info) directly in the token response as plain JSON. 
     " name="description">
-<meta content="xml2rfc 3.30.2" name="generator">
-<meta content="openid" name="keyword">
-<meta content="draft-openid-simplified-userinfo-response-latest" name="ietf.draft">
+<meta content="xml2rfc 3.35.0" name="generator">
+<meta content="oauth" name="keyword">
+<meta content="userinfo" name="keyword">
+<meta content="draft-parecki-oauth-userinfo-response-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.30.2
-    Python 3.12.11
-    ConfigArgParse 1.7
+  xml2rfc 3.35.0
+    Python 3.14.10
+    ConfigArgParse 1.10.1
     google-i18n-address 3.1.1
-    intervaltree 3.1.0
+    intervaltree 3.2.1
     Jinja2 3.1.6
-    lxml 5.3.1
-    platformdirs 4.4.0
+    lxml 6.1.1
+    natsort 8.4.0
+    platformdirs 4.14.7
     pycountry 24.6.1
-    PyYAML 6.0.2
-    requests 2.32.5
-    setuptools 80.9.0
-    wcwidth 0.2.14
+    PyYAML 6.0.3
+    requests 2.33.1
+    wcwidth 0.9.4
 -->
-<link href="draft-openid-simplified-userinfo-response.xml" rel="alternate" type="application/rfc+xml">
+<link href="draft-parecki-oauth-userinfo-response.xml" rel="alternate" type="application/rfc+xml">
 <link href="#copyright" rel="license">
 <style type="text/css">@font-face {
   font-family: 'Lora';
@@ -61,7 +62,6 @@
   src: local('Lora Italic'), local('Lora-Italic'), url('https://martinthomson.github.io/rfc-css/fonts/lora-italic-latin-ext.woff2') format('woff2');
   unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
-
 @font-face {
   font-family: 'Lora';
   font-style: italic;
@@ -110,7 +110,6 @@
   src: local('Lora Regular'), local('Lora-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/lora-regular-latin.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
-
 @font-face {
   font-family: 'Lora';
   font-style: normal;
@@ -166,7 +165,7 @@
   font-weight: 400;
   font-display: swap;
   src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin-ext.woff2') format('woff2');
-  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
   font-family: 'Oxygen Mono';
@@ -174,7 +173,7 @@
   font-weight: 400;
   font-display: swap;
   src: local('Oxygen Mono'), local('OxygenMono-Regular'), url('https://martinthomson.github.io/rfc-css/fonts/oxygenmono-regular-latin.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
@@ -291,16 +290,19 @@ h1, h2, h3, h4, h5, h6 {
   font-size-adjust: 0.5;
   color: var(--title-color);
 }
-h1#title {
-  font-size: 32px;
-  line-height: 40px;
-  clear: both;
-}
-h1#title, h1#rfcnum {
-  margin: 1.5em 0 0.2em;
-}
-h1#rfcnum + h1#title {
-  margin: 0.2em 0;
+h1 {
+  &#title {
+    font-size: 32px;
+    line-height: 40px;
+    clear: both;
+    margin: 1.5em 0 0.2em;
+  }
+  &#rfcnum {
+    margin: 1.5em 0 0.2em;
+    & + h1#title {
+      margin: 0.2em 0;
+    }
+  }
 }
 
 h1, h2, h3 {
@@ -320,10 +322,10 @@ h4, h5, h6 {
 #abstract+p {
   font-size: 18px;
   line-height: 24px;
-}
-#abstract+p code, #abstract+p samp, #abstract+p tt {
-  font-size: 16px;
-  line-height: 0;
+  & code, & samp, & tt {
+    font-size: 16px;
+    line-height: 0;
+  }
 }
 
 p {
@@ -334,59 +336,59 @@ p {
 div {
   margin: 0;
 }
-.alignRight.art-text {
-  background-color: var(--highlight-color);
-  border: 1px solid var(--line-color);
-  border-radius: 3px;
-  padding: 0.5em 1em 0;
-  margin-bottom: 0.5em;
-}
-.alignRight.art-text pre {
-  padding: 0;
-  width: auto;
-}
 .alignRight {
   margin: 1em 0;
-}
-.alignRight > *:first-child {
-  border: none;
-  margin: 0;
-  float: right;
-  clear: both;
-}
-.alignRight > *:nth-child(2) {
-  clear: both;
-  display: block;
-  border: none;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    margin: 0;
+    float: right;
+    clear: both;
+  }
+  & > *:nth-child(2) {
+    clear: both;
+    display: block;
+    border: none;
+  }
 }
 svg {
   display: block;
-}
-/* font-family isn't space-separated, but =~ will have to do */
-svg[font-family~="monospace" i], svg [font-family~="monospace" i] {
-  font-family: var(--font-mono);
-}
-.alignCenter.art-text {
-  background-color: var(--highlight-color);
-  border: 1px solid var(--line-color);
-  border-radius: 3px;
-  padding: 0.5em 1em 0;
-  margin-bottom: 0.5em;
-}
-.alignCenter.art-text pre {
-  padding: 0;
-  width: auto;
+  /* font-family isn't space-separated, but =~ will have to do */
+  &[font-family~="monospace" i], & [font-family~="monospace" i] {
+    font-family: var(--font-mono);
+  }
 }
 .alignCenter {
   margin: 1em 0;
-}
-.alignCenter > *:first-child {
-  border: none;
-  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
-     support flexbox yet.
-  */
-  display: table;
-  margin: 0 auto;
+  &.art-text {
+    background-color: var(--highlight-color);
+    border: 1px solid var(--line-color);
+    border-radius: 3px;
+    padding: 0.5em 1em 0;
+    margin-bottom: 0.5em;
+    & pre {
+      padding: 0;
+      width: auto;
+    }
+  }
+  & > *:first-child {
+    border: none;
+    /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+       support flexbox yet.
+    */
+    display: table;
+    margin: 0 auto;
+  }
 }
 
 /* lists */
@@ -424,26 +426,25 @@ dl {
     --indent: 5ch;
     & > dt {
       min-width: calc(var(--indent) - 2ch);
+      float: none;
     }
-  }
-  &.olPercent > dt {
-    float: none;
   }
 
   dl > dd > & {
     margin-top: 0.5em;
     margin-bottom: 0;
   }
-}
-dl:not(.dlNewline) > dt {
-  float: left;
-  margin-right: 2ch;
-  min-width: 8ch;
-}
-dl > dd {
-  margin-bottom: .8em;
-  margin-left: var(--indent) !important; /* stupid element overrides */
-  min-height: 2ex;
+
+  &:not(.dlNewline) > dt {
+    float: left;
+    margin-right: 2ch;
+    min-width: 8ch;
+  }
+  & > dd {
+    margin-bottom: .8em;
+    margin-left: var(--indent) !important; /* stupid element overrides */
+    min-height: 2ex;
+  }
 }
 :is(dl.compact, .dlCompact) > dd {
   margin-bottom: 0;
@@ -459,20 +460,22 @@ dl > dd {
 }
 
 /* links */
-a, a[href].selfRef:hover {
+a {
   text-decoration: none;
+  &[href] {
+    color: var(--link-color);
+    &:hover { text-decoration: underline; }
+    &.selfRef {
+      color: var(--text-color);
+      &:hover {
+        text-decoration: none;
+        background-color: var(--highlight-color);
+      }
+    }
+  }
 }
-a[href] {
-  color: var(--link-color);
-}
-a[href].selfRef, .iref + a[href].internal {
+.iref + a[href].internal {
   color: var(--text-color);
-}
-a[href]:hover {
-  text-decoration: underline;
-}
-a[href].selfRef:hover {
-  background-color: var(--highlight-color);
 }
 a.xref:is(.cite, .auto), :is(#status-of-memo, #copyright) a {
   white-space: nowrap;
@@ -508,9 +511,9 @@ img {
 figure {
   margin: 0.5em 0;
   padding: 0;
-}
-figure blockquote {
-  margin: 0.8em 0.4em 0.4em;
+  & blockquote {
+    margin: 0.8em 0.4em 0.4em;
+  }
 }
 figcaption, caption {
   font-style: italic;
@@ -520,17 +523,19 @@ figcaption, caption {
 }
 @media screen {
   /* Auto-collapse boilerplate. */
-  :is(#status-of-memo, #copyright) p {
-    margin: -2px 0;
-    max-height: 0;
-    transition: max-height 2s ease, margin 0.5s ease 0.5s;
-    overflow: hidden;
-  }
-  :is(#status-of-memo, #copyright):hover p,
-  :is(#status-of-memo, #copyright) h2:target ~ p {
-    margin: 0.5em 0;
-    max-height: 500px;
-    overflow: auto;
+  :is(#status-of-memo, #copyright) {
+    & p {
+      margin: -2px 0;
+      max-height: 0;
+      transition: max-height 2s ease, margin 0.5s ease 0.5s;
+      overflow: hidden;
+    }
+    &:hover p,
+    & h2:target ~ p {
+      margin: 0.5em 0;
+      max-height: 500px;
+      overflow: auto;
+    }
   }
   pre, svg {
     display: inline-block;
@@ -566,6 +571,7 @@ aside, blockquote {
 }
 blockquote {
   margin: 1em 0;
+  border-left: 2px var(--pilcrow-strong) solid;
 }
 cite {
   display: block;
@@ -579,25 +585,17 @@ table {
   max-width: 100%;
   margin: 0 0 1em;
   border-collapse: collapse;
-}
-table.right {
-  margin-left: auto;
-}
-table.center {
-  margin-left: auto;
-  margin-right: auto;
-}
-table.left {
-  margin-right: auto;
-}
-table .text-left {
-  text-align: left;
-}
-table .text-center {
-  text-align: center;
-}
-table .text-right {
-  text-align: right;
+  &.right { margin-left: auto; }
+  &.center { margin-left: auto; margin-right: auto; }
+  &.left { margin-right: auto; }
+  & .text-left { text-align: left; }
+  & .text-center { text-align: center; }
+  & .text-right { text-align: right; }
+  & caption {
+    margin: 0;
+    padding: 3px 0 3px 1em;
+  }
+  & p { margin: 0; }
 }
 
 thead, tbody {
@@ -617,13 +615,6 @@ th {
 :is(tr:nth-child(2n+1), thead+tbody > tr:nth-child(2n)) > td {
   background-color: var(--highlight-color);
 }
-table caption {
-  margin: 0;
-  padding: 3px 0 3px 1em;
-}
-table p {
-  margin: 0;
-}
 
 /* pilcrow */
 a.pilcrow {
@@ -634,18 +625,16 @@ a.pilcrow {
     color: var(--pilcrow-weak);
     &:hover { text-decoration: none; }
   }
-}
-@media not print {
-  :hover > a.pilcrow {
-    opacity: 1;
+  @media not print {
+    :hover > &, &:focus {
+      opacity: 1;
+    }
+    &[href]:hover {
+      color: var(--pilcrow-strong);
+      background-color: transparent;
+    }
   }
-  a.pilcrow[href]:hover {
-    color: var(--pilcrow-strong);
-    background-color: transparent;
-  }
-}
-@media print {
-  a.pilcrow {
+  @media print {
     display: none;
   }
 }
@@ -704,9 +693,9 @@ sub, sup {
   font-size: 0.9em;
   font-style: italic;
   margin-top: 2em;
-}
-.docInfo .prepared {
-  float: right;
+  & .prepared {
+    float: right;
+  }
 }
 
 /* table of contents */
@@ -796,23 +785,27 @@ hr.addr {
   max-width: calc(100% - 16px);
 }
 @media (min-width: 500px) {
-  #authors-addresses > section {
-    column-count: 2;
-    column-gap: 20px;
-  }
-  #authors-addresses > section > h2 {
-    column-span: all;
-  }
-  /* hack for break-inside: avoid-column */
-  #authors-addresses address {
-    display: inline-block;
-    break-inside: avoid-column;
+  #authors-addresses {
+    & > section {
+      column-count: 2;
+      column-gap: 20px;
+    }
+    & > section > h2 {
+      column-span: all;
+    }
+    /* hack for break-inside: avoid-column */
+    & address {
+      display: inline-block;
+      break-inside: avoid-column;
+    }
   }
 }
 
 /* Comments */
-.rfcEditorRemove p:first-of-type {
-  font-style: italic;
+.rfcEditorRemove {
+  & p:first-of-type {
+    font-style: italic;
+  }
 }
 .cref {
   background-color: rgba(249, 232, 105, 0.3);
@@ -823,19 +816,21 @@ hr.addr {
 }
 
 @media screen {
-  #toc nav {
-    font-family: var(--font-title);
-    font-weight: 360;
-    & > ul { margin-bottom: 2em; }
-    & ul {
-      margin: 0 0 0 4px;
-      & :is(p, li) {
-        margin: 2px 0;
+  #toc {
+    & nav {
+      font-family: var(--font-title);
+      font-weight: 360;
+      & > ul { margin-bottom: 2em; }
+      & ul {
+        margin: 0 0 0 4px;
+        & :is(p, li) {
+          margin: 2px 0;
+        }
       }
     }
-  }
-  #toc a.toplink {
-    float: right;
+    & a.toplink {
+      float: right;
+    }
   }
 }
 @media not screen {
@@ -856,54 +851,54 @@ hr.addr {
     margin: 0;
     border-bottom: 1px solid #ccc;
     opacity: 0.6;
-  }
-  #toc h2 {
-    margin: 0;
-    padding: 2px 0 2px 6px;
-    padding-right: 1em;
-    font-size: 18px;
-    line-height: 24px;
-    min-width: 190px;
-    text-align: right;
-    background-color: #444;
-    color: white;
-    cursor: pointer;
-    &::before { /* css hamburger */
-      float: right;
-      position: relative;
-      width: 1em;
-      height: 1px;
-      left: -164px;
-      margin: 8px 0 0 0;
-      background: white none repeat scroll 0 0;
-      box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
-      content: "";
+    & h2 {
+      margin: 0;
+      padding: 2px 0 2px 6px;
+      padding-right: 1em;
+      font-size: 18px;
+      line-height: 24px;
+      min-width: 190px;
+      text-align: right;
+      background-color: #444;
+      color: white;
+      cursor: pointer;
+      &::before { /* css hamburger */
+        float: right;
+        position: relative;
+        width: 1em;
+        height: 1px;
+        left: -164px;
+        margin: 8px 0 0 0;
+        background: white none repeat scroll 0 0;
+        box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+        content: "";
+      }
     }
-  }
-  #toc nav {
-    display: none;
-    background-color: var(--background-color);
-    padding: 0.5em 1em 1em;
-    overflow: auto;
-    overscroll-behavior: contain;
-    height: calc(100vh - 48px);
-    border-left: 1px solid #ddd;
-  }
-  #toc.active {
-    opacity: 1;
-    & nav { display: block; }
-  }
-  /* Make the collapsed ToC header render white on gray also when it's a link */
-  #toc h2 a,
-  #toc h2 a:is(:link, :focus, :hover),
-  #toc a.toplink,
-  #toc a.toplink:hover {
-    color: white;
-    background-color: #444;
-    text-decoration: none;
-  }
-  #toc a.toplink {
-    margin: 2px 0.5em 0;
+    & nav {
+      display: none;
+      background-color: var(--background-color);
+      padding: 0.5em 1em 1em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      height: calc(100vh - 48px);
+      border-left: 1px solid #ddd;
+    }
+    &.active {
+      opacity: 1;
+      & nav { display: block; }
+    }
+    /* Make the collapsed ToC header render white on gray also when it's a link */
+    & h2 a,
+    & h2 a:is(:link, :focus, :hover),
+    & a.toplink,
+    & a.toplink:hover {
+      color: white;
+      background-color: #444;
+      text-decoration: none;
+    }
+    & a.toplink {
+      margin: 2px 0.5em 0;
+    }
   }
 }
 
@@ -922,26 +917,26 @@ hr.addr {
     margin: 0;
     padding: 0;
     z-index: 1;
-  }
-  #toc h2 {
-    margin: 0;
-    padding: 0.25em 1em 1em 0;
-  }
-  #toc nav {
-    display: block;
-    height: calc(90vh - 84px);
-    bottom: 0;
-    padding: 0.5em 0 2em;
-    overflow: auto;
-    overscroll-behavior: contain;
-    scrollbar-width: thin;
+    & h2 {
+      margin: 0;
+      padding: 0.25em 1em 1em 0;
+    }
+    & nav {
+      display: block;
+      height: calc(90vh - 84px);
+      bottom: 0;
+      padding: 0.5em 0 2em;
+      overflow: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+    }
+    & a.toplink {
+      margin: 8px 0.5em 0;
+    }
   }
   img { /* future proofing */
     max-width: 100%;
     height: auto;
-  }
-  #toc a.toplink {
-    margin: 8px 0.5em 0;
   }
 }
 
@@ -957,12 +952,13 @@ hr.addr {
   #n-copyright-notice {
     border-bottom: none;
   }
-  #toc, #n-introduction {
-    page-break-before: always;
-  }
   #toc {
+    page-break-before: always;
     border-top: none;
     padding-top: 0;
+  }
+  #n-introduction {
+    page-break-before: always;
   }
   figure, pre, .vcard {
     page-break-inside: avoid;
@@ -1024,17 +1020,19 @@ hr.addr {
 }
 
 /* SVG Trick: a prefix match works because only black and white are allowed */
-svg :is([stroke="black"], [stroke^="#000"]) {
-  stroke: var(--text-color);
-}
-svg :is([stroke="white"], [stroke^="#fff"]) {
-  stroke: var(--background-color);
-}
-svg :is([fill="black"], [fill^="#000"], :not([fill])) {
-  fill: var(--text-color);
-}
-svg :is([fill="white"], [fill^="#fff"]) {
-  fill: var(--background-color);
+svg {
+  & :is([stroke="black"], [stroke^="#000"]) {
+    stroke: var(--text-color);
+  }
+  & :is([stroke="white"], [stroke^="#fff"]) {
+    stroke: var(--background-color);
+  }
+  & :is([fill="black"], [fill^="#000"], :not([fill], [fill] *)) {
+    fill: var(--text-color);
+  }
+  & :is([fill="white"], [fill^="#fff"]) {
+    fill: var(--background-color);
+  }
 }
 </style>
 
@@ -1043,12 +1041,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <table class="ears">
 <thead><tr>
 <td class="left">Internet-Draft</td>
-<td class="center">Simplified Userinfo Response</td>
-<td class="right">October 2025</td>
+<td class="center">OAuth Userinfo Response</td>
+<td class="right">November 2026</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Parecki</td>
-<td class="center">Expires 16 April 2026</td>
+<td class="center">Expires 23 May 2027</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1056,17 +1054,17 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <div id="internal-metadata" class="document-information">
 <dl id="identifiers">
 <dt class="label-workgroup">Workgroup:</dt>
-<dd class="workgroup">OpenID Connect</dd>
+<dd class="workgroup">Web Authorization Protocol</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-openid-simplified-userinfo-response-latest</dd>
+<dd class="internet-draft">draft-parecki-oauth-userinfo-response-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2025-10-13" class="published">13 October 2025</time>
+<time datetime="2026-11-19" class="published">19 November 2026</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2026-04-16">16 April 2026</time></dd>
+<dd class="expires"><time datetime="2027-05-23">23 May 2027</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1076,10 +1074,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </dd>
 </dl>
 </div>
-<h1 id="title">OpenID Connect Simplified Userinfo Response</h1>
+<h1 id="title">OAuth Userinfo Response</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">This specification defines an extension to the OpenID Connect OAuth Token Endpoint Response to allow a Relying Party (RP) to retrieve the user's info (e.g. subject identifier or profile info) directly in the token response, rather than being encapsulated within a full ID Token.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">This specification defines an extension to the OAuth 2.0 Token Endpoint Response to allow a client to retrieve information about the user who authorized the request (e.g. a subject identifier or profile info) directly in the token response as plain JSON.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1087,13 +1085,15 @@ svg :is([fill="white"], [fill^="#fff"]) {
       </h2>
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
-        The latest revision of this draft can be found at <span><a href="https://aaronpk.github.io/openid-simplified-userinfo-response/draft-openid-simplified-userinfo-response.html">https://aaronpk.github.io/openid-simplified-userinfo-response/draft-openid-simplified-userinfo-response.html</a></span>.
-        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-openid-simplified-userinfo-response/">https://datatracker.ietf.org/doc/draft-openid-simplified-userinfo-response/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+        The latest revision of this draft can be found at <span><a href="https://aaronpk.github.io/openid-simplified-userinfo-response/draft-parecki-oauth-userinfo-response.html">https://aaronpk.github.io/openid-simplified-userinfo-response/draft-parecki-oauth-userinfo-response.html</a></span>.
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-parecki-oauth-userinfo-response/">https://datatracker.ietf.org/doc/draft-parecki-oauth-userinfo-response/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 <p id="section-note.1-3">
         Discussion of this document takes place on the
-        OpenID Connect Working Group mailing list (<span><a href="mailto:openid-specs-ab@lists.openid.net">mailto:openid-specs-ab@lists.openid.net</a></span>).<a href="#section-note.1-3" class="pilcrow">¶</a></p>
+        Web Authorization Protocol Working Group mailing list (<span><a href="mailto:oauth@ietf.org">mailto:oauth@ietf.org</a></span>),
+        which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/oauth/">https://mailarchive.ietf.org/arch/browse/oauth/</a></span>.
+        Subscribe at <span><a href="https://www.ietf.org/mailman/listinfo/oauth/">https://www.ietf.org/mailman/listinfo/oauth/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
 <p id="section-note.1-4">Source for this draft and an issue tracker can be found at
-        <span><a href="https://github.com/aaronpk/openid-simplified-subject-response">https://github.com/aaronpk/openid-simplified-subject-response</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+        <span><a href="https://github.com/aaronpk/openid-simplified-userinfo-response">https://github.com/aaronpk/openid-simplified-userinfo-response</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1114,7 +1114,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 16 April 2026.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 23 May 2027.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1123,7 +1123,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
         </h2>
 <p id="section-boilerplate.2-1">
-            Copyright (c) 2025 IETF Trust and the persons identified as the
+            Copyright (c) 2026 IETF Trust and the persons identified as the
             document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.2-2">
             This document is subject to BCP 78 and the IETF Trust's Legal
@@ -1131,7 +1131,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
             (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
             publication of this document. Please review these documents
             carefully, as they describe your rights and restrictions with
-            respect to this document.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+            respect to this document. Code Components extracted from this
+            document must include Revised BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Revised BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="toc">
@@ -1147,10 +1150,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-simplified-subject-response" class="internal xref">Simplified Subject Response</a></p>
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-subject-response" class="internal xref">Subject Response</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
-                <p id="section-toc.1-1.3.2.1.1" class="keepWithNext"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-requesting-the-simplified-s" class="internal xref">Requesting the Simplified Subject Response</a></p>
+                <p id="section-toc.1-1.3.2.1.1" class="keepWithNext"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-requesting-the-subject-resp" class="internal xref">Requesting the Subject Response</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.2">
                 <p id="section-toc.1-1.3.2.2.1"><a href="#section-3.2" class="auto internal xref">3.2</a>.  <a href="#name-authorization-request" class="internal xref">Authorization Request</a></p>
@@ -1164,10 +1167,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
             </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-simplified-userinfo-respons" class="internal xref">Simplified Userinfo Response</a></p>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-userinfo-response" class="internal xref">Userinfo Response</a></p>
 <ul class="compact toc ulBare ulEmpty">
 <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
-                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-requesting-the-simplified-su" class="internal xref">Requesting the Simplified Subject Response</a></p>
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-requesting-the-userinfo-res" class="internal xref">Requesting the Userinfo Response</a></p>
 </li>
               <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
                 <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-authorization-request-2" class="internal xref">Authorization Request</a></p>
@@ -1223,18 +1226,18 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">This specification defines an extension to the OpenID Connect <span>[<a href="#OpenID" class="cite xref">OpenID</a>]</span> OAuth Token Endpoint Response to allow a Relying Party (RP) to retrieve the user's info directly in the token response, rather than being encapsulated within a full ID Token.<a href="#section-1-1" class="pilcrow">¶</a></p>
-<p id="section-1-2">This simplifies client implementations that do not require signed statements about the user's authentication from the OpenID Provider, and wish to avoid the overhead, complexity, and dependency management associated with parsing and validating a JSON Web Token (JWT).<a href="#section-1-2" class="pilcrow">¶</a></p>
-<p id="section-1-3">This specification provides two different ways the OpenID Provider can return info in the Token Response:<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-1">This specification defines an extension to the OAuth 2.0 <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> Token Endpoint Response to allow a client to retrieve information about the user who authorized the request directly in the token response.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">OAuth 2.0 does not define a way for the client to learn anything about the user who authorized the request. Many clients only need to know who the user is, and do not require a signed statement about the user or their authentication from the authorization server. Returning this information as plain JSON in the token response avoids an additional request, as well as the overhead, complexity, and dependency management associated with parsing and validating a JSON Web Token (JWT).<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">This specification provides two different ways the authorization server can return info in the Token Response:<a href="#section-1-3" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-1-4.1">
-          <p id="section-1-4.1.1">The "Simplified Subject Response", returning only the <code>sub</code> claim in the token response<a href="#section-1-4.1.1" class="pilcrow">¶</a></p>
+          <p id="section-1-4.1.1">The "Subject Response", returning only the subject identifier of the user as a new top-level property <code>sub</code> in the token response<a href="#section-1-4.1.1" class="pilcrow">¶</a></p>
 </li>
         <li class="normal" id="section-1-4.2">
-          <p id="section-1-4.2.1">The "Simplified Userinfo Response", returning a new top-level property <code>id_info</code> as a JSON object containing the same claims that would have been in the ID token.<a href="#section-1-4.2.1" class="pilcrow">¶</a></p>
+          <p id="section-1-4.2.1">The "Userinfo Response", returning a new top-level property <code>id_info</code> as a JSON object containing claims about the user and their authentication.<a href="#section-1-4.2.1" class="pilcrow">¶</a></p>
 </li>
       </ul>
-<p id="section-1-5">This mechanism <span class="bcp14">MUST NOT</span> be used as a replacement for a full OIDC flow when the RP requires a signed response, such as when the RP needs non-repudiation of the claims in the ID token.<a href="#section-1-5" class="pilcrow">¶</a></p>
+<p id="section-1-5">This mechanism <span class="bcp14">MUST NOT</span> be used when the client requires a signed statement about the user, such as when the client needs non-repudiation of the claims.<a href="#section-1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions-and-definitions">
@@ -1246,24 +1249,25 @@ svg :is([fill="white"], [fill^="#fff"]) {
 "<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
 described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">This specification uses the terms "authorization server", "client", "resource owner", "authorization request", "token endpoint", and "scope" defined by OAuth 2.0 <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span>. The term "user" refers to the resource owner who authorized the request.<a href="#section-2-2" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="simplified-subject-response">
+<div id="subject-response">
 <section id="section-3">
-      <h2 id="name-simplified-subject-response">
-<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-simplified-subject-response" class="section-name selfRef">Simplified Subject Response</a>
+      <h2 id="name-subject-response">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-subject-response" class="section-name selfRef">Subject Response</a>
       </h2>
-<p id="section-3-1">To signal its intent to receive only the Subject Identifier in the Token Response, the Relying Party (OAuth Client) uses a new scope value in the Authorization Request.<a href="#section-3-1" class="pilcrow">¶</a></p>
-<div id="requesting-the-simplified-subject-response">
+<p id="section-3-1">To signal its intent to receive the subject identifier of the user in the Token Response, the client uses a new scope value in the Authorization Request.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<div id="requesting-the-subject-response">
 <section id="section-3.1">
-        <h3 id="name-requesting-the-simplified-s">
-<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-requesting-the-simplified-s" class="section-name selfRef">Requesting the Simplified Subject Response</a>
+        <h3 id="name-requesting-the-subject-resp">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-requesting-the-subject-resp" class="section-name selfRef">Requesting the Subject Response</a>
         </h3>
 <p id="section-3.1-1">This specification defines a new scope value: <code>subject</code><a href="#section-3.1-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-3.1-2">
           <dt id="section-3.1-2.1"><code>subject</code></dt>
           <dd style="margin-left: 1.5em" id="section-3.1-2.2">
-            <p id="section-3.1-2.2.1">Requests that the Authorization Server (AS) return the Subject Identifier (<code>sub</code>) directly in the Token Response, and omit the <code>id_token</code>.<a href="#section-3.1-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-3.1-2.2.1">Requests that the authorization server return the subject identifier (<code>sub</code>) of the user directly in the Token Response.<a href="#section-3.1-2.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -1274,14 +1278,14 @@ appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶<
         <h3 id="name-authorization-request">
 <a href="#section-3.2" class="section-number selfRef">3.2. </a><a href="#name-authorization-request" class="section-name selfRef">Authorization Request</a>
         </h3>
-<p id="section-3.2-1">The Client <span class="bcp14">SHOULD</span> include the <code>subject</code> scope along with the standard <code>openid</code> scope and any other required scopes in the Authorization Request.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
+<p id="section-3.2-1">The client <span class="bcp14">SHOULD</span> include the <code>subject</code> scope along with any other required scopes in the Authorization Request.<a href="#section-3.2-1" class="pilcrow">¶</a></p>
 <p id="section-3.2-2">Example request:<a href="#section-3.2-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-3.2-3">
 <pre>
 GET /authorize?
   response_type=code
   &amp;client_id=e69b14fe3fdcf1b432deb0c
-  &amp;scope=openid%20subject
+  &amp;scope=subject
   &amp;state=9e6d47801c833bfc8
   &amp;redirect_uri=https%3A%2F%2Fclient.example.com%2Fcb
   &amp;code_challenge=dy57vyachQ...&amp;code_challenge_method=S256
@@ -1290,14 +1294,14 @@ GET /authorize?
 <p id="section-3.2-4">Note: This is not limited to the <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> Authorization Code flow and applies the same to extensions such as Pushed Authorization Request <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>.<a href="#section-3.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="token-endpoint-response">
+<div id="subject-token-response">
 <section id="section-3.3">
         <h3 id="name-token-endpoint-response">
 <a href="#section-3.3" class="section-number selfRef">3.3. </a><a href="#name-token-endpoint-response" class="section-name selfRef">Token Endpoint Response</a>
         </h3>
 <p id="section-3.3-1">This specification defines a new field to be returned in the Token Endpoint response: <code>sub</code>.<a href="#section-3.3-1" class="pilcrow">¶</a></p>
-<p id="section-3.3-2">In the Authorization Code flow, upon successful validation of the Authorization Code, the PKCE Code Verifier, and optional client authentication, the Authorization Server constructs a Token Response including the new field <code>sub</code>.<a href="#section-3.3-2" class="pilcrow">¶</a></p>
-<p id="section-3.3-3">The value of the <code>sub</code> <span class="bcp14">MUST</span> be identical to the value of the <code>sub</code> that would have otherwise been returned in the ID token.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
+<p id="section-3.3-2">In the Authorization Code flow, upon successful validation of the Authorization Code, the PKCE Code Verifier, and optional client authentication, the authorization server constructs a Token Response including the new field <code>sub</code>.<a href="#section-3.3-2" class="pilcrow">¶</a></p>
+<p id="section-3.3-3">The value of <code>sub</code> is a string that identifies the user who authorized the request. It has the same meaning as the <code>sub</code> claim defined in <span><a href="https://rfc-editor.org/rfc/rfc7519#section-4.1.2" class="relref">Section 4.1.2</a> of [<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>. The value <span class="bcp14">MUST</span> be unique within the authorization server and <span class="bcp14">MUST NOT</span> be reassigned to a different user.<a href="#section-3.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="response-rules">
@@ -1307,13 +1311,10 @@ GET /authorize?
         </h3>
 <ul class="normal">
 <li class="normal" id="section-3.4-1.1">
-            <p id="section-3.4-1.1.1">If the Client included the <code>subject</code> scope in the initial Authorization Request, the OpenID Provider <span class="bcp14">MUST</span> include the <code>sub</code> parameter in the Token Response. The OpenID Provider <span class="bcp14">MAY</span> also return the <code>sub</code> parameter if the Client did not include the <code>subject</code> scope in the initial Authorization Request.<a href="#section-3.4-1.1.1" class="pilcrow">¶</a></p>
+            <p id="section-3.4-1.1.1">If the client included the <code>subject</code> scope in the initial Authorization Request, the authorization server <span class="bcp14">MUST</span> include the <code>sub</code> parameter in the Token Response. The authorization server <span class="bcp14">MAY</span> also return the <code>sub</code> parameter if the client did not include the <code>subject</code> scope in the initial Authorization Request.<a href="#section-3.4-1.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-3.4-1.2">
-            <p id="section-3.4-1.2.1">If the <code>sub</code> parameter is included in the Token Response, the Authorization Server <span class="bcp14">MUST NOT</span> include the <code>id_token</code> parameter.<a href="#section-3.4-1.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-3.4-1.3">
-            <p id="section-3.4-1.3.1">No change is made to the requirements of the standard OAuth 2.0 <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> parameters in the response or any additional parameters defined by extensions.<a href="#section-3.4-1.3.1" class="pilcrow">¶</a></p>
+            <p id="section-3.4-1.2.1">No change is made to the requirements of the standard OAuth 2.0 <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> parameters in the response or any additional parameters defined by extensions.<a href="#section-3.4-1.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-3.4-2">Example successful token response<a href="#section-3.4-2" class="pilcrow">¶</a></p>
@@ -1331,22 +1332,22 @@ GET /authorize?
 </div>
 </section>
 </div>
-<div id="simplified-userinfo-response">
+<div id="userinfo-response">
 <section id="section-4">
-      <h2 id="name-simplified-userinfo-respons">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-simplified-userinfo-respons" class="section-name selfRef">Simplified Userinfo Response</a>
+      <h2 id="name-userinfo-response">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-userinfo-response" class="section-name selfRef">Userinfo Response</a>
       </h2>
-<p id="section-4-1">To signal its intent to receive the user info in the Token Response instead of in an ID token, the Relying Party (OAuth Client) uses a new scope value in the Authorization Request.<a href="#section-4-1" class="pilcrow">¶</a></p>
-<div id="requesting-the-simplified-subject-response-1">
+<p id="section-4-1">To signal its intent to receive information about the user in the Token Response, the client uses a new scope value in the Authorization Request.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<div id="requesting-the-userinfo-response">
 <section id="section-4.1">
-        <h3 id="name-requesting-the-simplified-su">
-<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-requesting-the-simplified-su" class="section-name selfRef">Requesting the Simplified Subject Response</a>
+        <h3 id="name-requesting-the-userinfo-res">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-requesting-the-userinfo-res" class="section-name selfRef">Requesting the Userinfo Response</a>
         </h3>
 <p id="section-4.1-1">This specification defines a new scope value: <code>id_info</code><a href="#section-4.1-1" class="pilcrow">¶</a></p>
 <span class="break"></span><dl class="dlParallel" id="section-4.1-2">
           <dt id="section-4.1-2.1"><code>id_info</code></dt>
           <dd style="margin-left: 1.5em" id="section-4.1-2.2">
-            <p id="section-4.1-2.2.1">Requests that the Authorization Server (AS) return the user info directly in the Token Response, and omit the <code>id_token</code>.<a href="#section-4.1-2.2.1" class="pilcrow">¶</a></p>
+            <p id="section-4.1-2.2.1">Requests that the authorization server return information about the user directly in the Token Response.<a href="#section-4.1-2.2.1" class="pilcrow">¶</a></p>
 </dd>
         <dd class="break"></dd>
 </dl>
@@ -1357,14 +1358,14 @@ GET /authorize?
         <h3 id="name-authorization-request-2">
 <a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-authorization-request-2" class="section-name selfRef">Authorization Request</a>
         </h3>
-<p id="section-4.2-1">The Client <span class="bcp14">SHOULD</span> include the <code>id_info</code> scope along with the standard <code>openid</code> scope and any other required scopes in the Authorization Request.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+<p id="section-4.2-1">The client <span class="bcp14">SHOULD</span> include the <code>id_info</code> scope along with any other required scopes in the Authorization Request.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
 <p id="section-4.2-2">Example request:<a href="#section-4.2-2" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4.2-3">
 <pre>
 GET /authorize?
   response_type=code
   &amp;client_id=e69b14fe3fdcf1b432deb0c
-  &amp;scope=openid%20id_info
+  &amp;scope=id_info
   &amp;state=9e6d47801c833bfc8
   &amp;redirect_uri=https%3A%2F%2Fclient.example.com%2Fcb
   &amp;code_challenge=dy57vyachQ...&amp;code_challenge_method=S256
@@ -1373,14 +1374,14 @@ GET /authorize?
 <p id="section-4.2-4">Note: This is not limited to the <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> Authorization Code flow and applies the same to extensions such as Pushed Authorization Request <span>[<a href="#RFC9126" class="cite xref">RFC9126</a>]</span>.<a href="#section-4.2-4" class="pilcrow">¶</a></p>
 </section>
 </div>
-<div id="token-endpoint-response-1">
+<div id="token-endpoint-response">
 <section id="section-4.3">
         <h3 id="name-token-endpoint-response-2">
 <a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-token-endpoint-response-2" class="section-name selfRef">Token Endpoint Response</a>
         </h3>
 <p id="section-4.3-1">This specification defines a new field to be returned in the Token Endpoint response: <code>id_info</code>.<a href="#section-4.3-1" class="pilcrow">¶</a></p>
-<p id="section-4.3-2">In the Authorization Code flow, upon successful validation of the Authorization Code, the PKCE Code Verifier, and optional client authentication, the Authorization Server constructs a Token Response including the new field <code>id_info</code>.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
-<p id="section-4.3-3">The value of the <code>id_info</code> is a JSON object, and the claims <span class="bcp14">MUST</span> be identical to the claims about the user and their authentication that would have otherwise been returned in the ID token. The following claims about the OpenID Provider and ID token itself <span class="bcp14">SHOULD NOT</span> be returned: <code>iss</code>, <code>aud</code>, <code>nonce</code>.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
+<p id="section-4.3-2">In the Authorization Code flow, upon successful validation of the Authorization Code, the PKCE Code Verifier, and optional client authentication, the authorization server constructs a Token Response including the new field <code>id_info</code>.<a href="#section-4.3-2" class="pilcrow">¶</a></p>
+<p id="section-4.3-3">The value of <code>id_info</code> is a JSON object whose members are claims about the user and their authentication. The claim names and their meanings are those registered in the IANA "JSON Web Token Claims" registry established by <span>[<a href="#RFC7519" class="cite xref">RFC7519</a>]</span>. The object <span class="bcp14">MUST</span> contain the <code>sub</code> claim, as described in <a href="#subject-token-response" class="auto internal xref">Section 3.3</a>. Which additional claims are returned is at the discretion of the authorization server, and may depend on the scopes granted.<a href="#section-4.3-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="response-rules-1">
@@ -1390,13 +1391,10 @@ GET /authorize?
         </h3>
 <ul class="normal">
 <li class="normal" id="section-4.4-1.1">
-            <p id="section-4.4-1.1.1">If the Client included the <code>id_info</code> scope in the initial Authorization Request, the OpenID Provider <span class="bcp14">MUST</span> include the <code>id_info</code> parameter in the Token Response. The OpenID Provider <span class="bcp14">MAY</span> also return the <code>id_info</code> parameter if the Client did not include the <code>id_info</code> scope in the initial Authorization Request.<a href="#section-4.4-1.1.1" class="pilcrow">¶</a></p>
+            <p id="section-4.4-1.1.1">If the client included the <code>id_info</code> scope in the initial Authorization Request, the authorization server <span class="bcp14">MUST</span> include the <code>id_info</code> parameter in the Token Response. The authorization server <span class="bcp14">MAY</span> also return the <code>id_info</code> parameter if the client did not include the <code>id_info</code> scope in the initial Authorization Request.<a href="#section-4.4-1.1.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="section-4.4-1.2">
-            <p id="section-4.4-1.2.1">If the <code>id_info</code> parameter is included in the Token Response, the Authorization Server <span class="bcp14">MUST NOT</span> include the <code>id_token</code> parameter.<a href="#section-4.4-1.2.1" class="pilcrow">¶</a></p>
-</li>
-          <li class="normal" id="section-4.4-1.3">
-            <p id="section-4.4-1.3.1">No change is made to the requirements of the standard OAuth 2.0 <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> parameters in the response or any additional parameters defined by extensions.<a href="#section-4.4-1.3.1" class="pilcrow">¶</a></p>
+            <p id="section-4.4-1.2.1">No change is made to the requirements of the standard OAuth 2.0 <span>[<a href="#RFC6749" class="cite xref">RFC6749</a>]</span> parameters in the response or any additional parameters defined by extensions.<a href="#section-4.4-1.2.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 <p id="section-4.4-2">Example successful token response<a href="#section-4.4-2" class="pilcrow">¶</a></p>
@@ -1408,7 +1406,6 @@ GET /authorize?
   "expires_in": 3600,
   "id_info": {
     "sub": "b46b2f1f2b7686d",
-    "exp": 1311281970,
     "auth_time": 1311280969,
     "acr": "phr"
   }
@@ -1429,8 +1426,8 @@ GET /authorize?
         <h3 id="name-token-endpoint">
 <a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-token-endpoint" class="section-name selfRef">Token Endpoint</a>
         </h3>
-<p id="section-5.1-1">The Subject Identifier and Userinfo response fields <span class="bcp14">MUST</span> only be returned from the token endpoint.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
-<p id="section-5.1-2">The Subject Identifier and Userinfo <span class="bcp14">MUST NOT</span> be returned in the Authorization Response (the URL redirect back to the client), as this passes through the front channel and this shortcut provides no mechanism to for the RP to validate the legitimacy of the value in the response.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
+<p id="section-5.1-1">The <code>sub</code> and <code>id_info</code> response fields <span class="bcp14">MUST</span> only be returned from the token endpoint.<a href="#section-5.1-1" class="pilcrow">¶</a></p>
+<p id="section-5.1-2">The <code>sub</code> and <code>id_info</code> values <span class="bcp14">MUST NOT</span> be returned in the Authorization Response (the URL redirect back to the client), as this passes through the front channel and provides no mechanism for the client to validate the legitimacy of the value in the response.<a href="#section-5.1-2" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="authorization-code-flow">
@@ -1446,7 +1443,7 @@ GET /authorize?
         <h3 id="name-tamper-resistance">
 <a href="#section-5.3" class="section-number selfRef">5.3. </a><a href="#name-tamper-resistance" class="section-name selfRef">Tamper Resistance</a>
         </h3>
-<p id="section-5.3-1">The simplified response defined here provides no cryptographic signature over the <code>sub</code> or <code>id_info</code> values. Their integrity and authenticity are solely reliant on the security of the transport layer of the Token Endpoint and the preceding Authorization Code + PKCE exchange.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
+<p id="section-5.3-1">The response defined here provides no cryptographic signature over the <code>sub</code> or <code>id_info</code> values. Their integrity and authenticity are solely reliant on the security of the transport layer of the Token Endpoint and the preceding Authorization Code + PKCE exchange.<a href="#section-5.3-1" class="pilcrow">¶</a></p>
 </section>
 </div>
 </section>
@@ -1470,10 +1467,6 @@ GET /authorize?
 <a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
         </h3>
 <dl class="references">
-<dt id="OpenID">[OpenID]</dt>
-        <dd>
-<span class="refAuthor">Sakimura, N.</span>, <span class="refAuthor">Bradley, J.</span>, <span class="refAuthor">Jones, M.</span>, <span class="refAuthor">de Medeiros, B.</span>, and <span class="refAuthor">C. Mortimore</span>, <span class="refTitle">"OpenID Connect Core 1.0 incorporating errata set 2"</span>, <time datetime="2023-12" class="refDate">December 2023</time>, <span>&lt;<a href="https://openid.net/specs/openid-connect-core-1_0.html">https://openid.net/specs/openid-connect-core-1_0.html</a>&gt;</span>. </dd>
-<dd class="break"></dd>
 <dt id="RFC2119">[RFC2119]</dt>
         <dd>
 <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
@@ -1481,6 +1474,10 @@ GET /authorize?
 <dt id="RFC6749">[RFC6749]</dt>
         <dd>
 <span class="refAuthor">Hardt, D., Ed.</span>, <span class="refTitle">"The OAuth 2.0 Authorization Framework"</span>, <span class="seriesInfo">RFC 6749</span>, <span class="seriesInfo">DOI 10.17487/RFC6749</span>, <time datetime="2012-10" class="refDate">October 2012</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6749">https://www.rfc-editor.org/rfc/rfc6749</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7519">[RFC7519]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">N. Sakimura</span>, <span class="refTitle">"JSON Web Token (JWT)"</span>, <span class="seriesInfo">RFC 7519</span>, <span class="seriesInfo">DOI 10.17487/RFC7519</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7519">https://www.rfc-editor.org/rfc/rfc7519</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="RFC7636">[RFC7636]</dt>
         <dd>

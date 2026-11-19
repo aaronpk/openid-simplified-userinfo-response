@@ -2,22 +2,21 @@
 
 
 
-OpenID Connect                                                A. Parecki
+Web Authorization Protocol                                    A. Parecki
 Internet-Draft                                                      Okta
-Intended status: Informational                           13 October 2025
-Expires: 16 April 2026
+Intended status: Informational                          19 November 2026
+Expires: 23 May 2027
 
 
-              OpenID Connect Simplified Userinfo Response
-            draft-openid-simplified-userinfo-response-latest
+                        OAuth Userinfo Response
+              draft-parecki-oauth-userinfo-response-latest
 
 Abstract
 
-   This specification defines an extension to the OpenID Connect OAuth
-   Token Endpoint Response to allow a Relying Party (RP) to retrieve the
-   user's info (e.g. subject identifier or profile info) directly in the
-   token response, rather than being encapsulated within a full ID
-   Token.
+   This specification defines an extension to the OAuth 2.0 Token
+   Endpoint Response to allow a client to retrieve information about the
+   user who authorized the request (e.g. a subject identifier or profile
+   info) directly in the token response as plain JSON.
 
 About This Document
 
@@ -25,15 +24,17 @@ About This Document
 
    The latest revision of this draft can be found at
    https://aaronpk.github.io/openid-simplified-userinfo-response/draft-
-   openid-simplified-userinfo-response.html.  Status information for
-   this document may be found at https://datatracker.ietf.org/doc/draft-
-   openid-simplified-userinfo-response/.
+   parecki-oauth-userinfo-response.html.  Status information for this
+   document may be found at https://datatracker.ietf.org/doc/draft-
+   parecki-oauth-userinfo-response/.
 
-   Discussion of this document takes place on the OpenID Connect Working
-   Group mailing list (mailto:openid-specs-ab@lists.openid.net).
+   Discussion of this document takes place on the Web Authorization
+   Protocol Working Group mailing list (mailto:oauth@ietf.org), which is
+   archived at https://mailarchive.ietf.org/arch/browse/oauth/.
+   Subscribe at https://www.ietf.org/mailman/listinfo/oauth/.
 
    Source for this draft and an issue tracker can be found at
-   https://github.com/aaronpk/openid-simplified-subject-response.
+   https://github.com/aaronpk/openid-simplified-userinfo-response.
 
 Status of This Memo
 
@@ -50,30 +51,33 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 April 2026.
+   This Internet-Draft will expire on 23 May 2027.
 
 Copyright Notice
 
-   Copyright (c) 2025 IETF Trust and the persons identified as the
+   Copyright (c) 2026 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
    Provisions Relating to IETF Documents (https://trustee.ietf.org/
    license-info) in effect on the date of publication of this document.
    Please review these documents carefully, as they describe your rights
-   and restrictions with respect to this document.
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
 
 Table of Contents
 
    1.  Introduction
    2.  Conventions and Definitions
-   3.  Simplified Subject Response
-     3.1.  Requesting the Simplified Subject Response
+   3.  Subject Response
+     3.1.  Requesting the Subject Response
      3.2.  Authorization Request
      3.3.  Token Endpoint Response
      3.4.  Response Rules
-   4.  Simplified Userinfo Response
-     4.1.  Requesting the Simplified Subject Response
+   4.  Userinfo Response
+     4.1.  Requesting the Userinfo Response
      4.2.  Authorization Request
      4.3.  Token Endpoint Response
      4.4.  Response Rules
@@ -90,29 +94,33 @@ Table of Contents
 
 1.  Introduction
 
-   This specification defines an extension to the OpenID Connect
-   [OpenID] OAuth Token Endpoint Response to allow a Relying Party (RP)
-   to retrieve the user's info directly in the token response, rather
-   than being encapsulated within a full ID Token.
+   This specification defines an extension to the OAuth 2.0 [RFC6749]
+   Token Endpoint Response to allow a client to retrieve information
+   about the user who authorized the request directly in the token
+   response.
 
-   This simplifies client implementations that do not require signed
-   statements about the user's authentication from the OpenID Provider,
-   and wish to avoid the overhead, complexity, and dependency management
-   associated with parsing and validating a JSON Web Token (JWT).
+   OAuth 2.0 does not define a way for the client to learn anything
+   about the user who authorized the request.  Many clients only need to
+   know who the user is, and do not require a signed statement about the
+   user or their authentication from the authorization server.
+   Returning this information as plain JSON in the token response avoids
+   an additional request, as well as the overhead, complexity, and
+   dependency management associated with parsing and validating a JSON
+   Web Token (JWT).
 
-   This specification provides two different ways the OpenID Provider
-   can return info in the Token Response:
+   This specification provides two different ways the authorization
+   server can return info in the Token Response:
 
-   *  The "Simplified Subject Response", returning only the sub claim in
-      the token response
+   *  The "Subject Response", returning only the subject identifier of
+      the user as a new top-level property sub in the token response
 
-   *  The "Simplified Userinfo Response", returning a new top-level
-      property id_info as a JSON object containing the same claims that
-      would have been in the ID token.
+   *  The "Userinfo Response", returning a new top-level property
+      id_info as a JSON object containing claims about the user and
+      their authentication.
 
-   This mechanism MUST NOT be used as a replacement for a full OIDC flow
-   when the RP requires a signed response, such as when the RP needs
-   non-repudiation of the claims in the ID token.
+   This mechanism MUST NOT be used when the client requires a signed
+   statement about the user, such as when the client needs non-
+   repudiation of the claims.
 
 2.  Conventions and Definitions
 
@@ -122,32 +130,35 @@ Table of Contents
    BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
    capitals, as shown here.
 
-3.  Simplified Subject Response
+   This specification uses the terms "authorization server", "client",
+   "resource owner", "authorization request", "token endpoint", and
+   "scope" defined by OAuth 2.0 [RFC6749].  The term "user" refers to
+   the resource owner who authorized the request.
 
-   To signal its intent to receive only the Subject Identifier in the
-   Token Response, the Relying Party (OAuth Client) uses a new scope
-   value in the Authorization Request.
+3.  Subject Response
 
-3.1.  Requesting the Simplified Subject Response
+   To signal its intent to receive the subject identifier of the user in
+   the Token Response, the client uses a new scope value in the
+   Authorization Request.
+
+3.1.  Requesting the Subject Response
 
    This specification defines a new scope value: subject
 
-   subject  Requests that the Authorization Server (AS) return the
-      Subject Identifier (sub) directly in the Token Response, and omit
-      the id_token.
+   subject  Requests that the authorization server return the subject
+      identifier (sub) of the user directly in the Token Response.
 
 3.2.  Authorization Request
 
-   The Client SHOULD include the subject scope along with the standard
-   openid scope and any other required scopes in the Authorization
-   Request.
+   The client SHOULD include the subject scope along with any other
+   required scopes in the Authorization Request.
 
    Example request:
 
    GET /authorize?
      response_type=code
      &client_id=e69b14fe3fdcf1b432deb0c
-     &scope=openid%20subject
+     &scope=subject
      &state=9e6d47801c833bfc8
      &redirect_uri=https%3A%2F%2Fclient.example.com%2Fcb
      &code_challenge=dy57vyachQ...&code_challenge_method=S256
@@ -163,22 +174,21 @@ Table of Contents
 
    In the Authorization Code flow, upon successful validation of the
    Authorization Code, the PKCE Code Verifier, and optional client
-   authentication, the Authorization Server constructs a Token Response
+   authentication, the authorization server constructs a Token Response
    including the new field sub.
 
-   The value of the sub MUST be identical to the value of the sub that
-   would have otherwise been returned in the ID token.
+   The value of sub is a string that identifies the user who authorized
+   the request.  It has the same meaning as the sub claim defined in
+   Section 4.1.2 of [RFC7519].  The value MUST be unique within the
+   authorization server and MUST NOT be reassigned to a different user.
 
 3.4.  Response Rules
 
-   *  If the Client included the subject scope in the initial
-      Authorization Request, the OpenID Provider MUST include the sub
-      parameter in the Token Response.  The OpenID Provider MAY also
-      return the sub parameter if the Client did not include the subject
-      scope in the initial Authorization Request.
-
-   *  If the sub parameter is included in the Token Response, the
-      Authorization Server MUST NOT include the id_token parameter.
+   *  If the client included the subject scope in the initial
+      Authorization Request, the authorization server MUST include the
+      sub parameter in the Token Response.  The authorization server MAY
+      also return the sub parameter if the client did not include the
+      subject scope in the initial Authorization Request.
 
    *  No change is made to the requirements of the standard OAuth 2.0
       [RFC6749] parameters in the response or any additional parameters
@@ -193,31 +203,30 @@ Table of Contents
      "sub": "b46b2f1f2b7686d"
    }
 
-4.  Simplified Userinfo Response
+4.  Userinfo Response
 
-   To signal its intent to receive the user info in the Token Response
-   instead of in an ID token, the Relying Party (OAuth Client) uses a
-   new scope value in the Authorization Request.
+   To signal its intent to receive information about the user in the
+   Token Response, the client uses a new scope value in the
+   Authorization Request.
 
-4.1.  Requesting the Simplified Subject Response
+4.1.  Requesting the Userinfo Response
 
    This specification defines a new scope value: id_info
 
-   id_info  Requests that the Authorization Server (AS) return the user
-      info directly in the Token Response, and omit the id_token.
+   id_info  Requests that the authorization server return information
+      about the user directly in the Token Response.
 
 4.2.  Authorization Request
 
-   The Client SHOULD include the id_info scope along with the standard
-   openid scope and any other required scopes in the Authorization
-   Request.
+   The client SHOULD include the id_info scope along with any other
+   required scopes in the Authorization Request.
 
    Example request:
 
    GET /authorize?
      response_type=code
      &client_id=e69b14fe3fdcf1b432deb0c
-     &scope=openid%20id_info
+     &scope=id_info
      &state=9e6d47801c833bfc8
      &redirect_uri=https%3A%2F%2Fclient.example.com%2Fcb
      &code_challenge=dy57vyachQ...&code_challenge_method=S256
@@ -233,25 +242,24 @@ Table of Contents
 
    In the Authorization Code flow, upon successful validation of the
    Authorization Code, the PKCE Code Verifier, and optional client
-   authentication, the Authorization Server constructs a Token Response
+   authentication, the authorization server constructs a Token Response
    including the new field id_info.
 
-   The value of the id_info is a JSON object, and the claims MUST be
-   identical to the claims about the user and their authentication that
-   would have otherwise been returned in the ID token.  The following
-   claims about the OpenID Provider and ID token itself SHOULD NOT be
-   returned: iss, aud, nonce.
+   The value of id_info is a JSON object whose members are claims about
+   the user and their authentication.  The claim names and their
+   meanings are those registered in the IANA "JSON Web Token Claims"
+   registry established by [RFC7519].  The object MUST contain the sub
+   claim, as described in Section 3.3.  Which additional claims are
+   returned is at the discretion of the authorization server, and may
+   depend on the scopes granted.
 
 4.4.  Response Rules
 
-   *  If the Client included the id_info scope in the initial
-      Authorization Request, the OpenID Provider MUST include the
-      id_info parameter in the Token Response.  The OpenID Provider MAY
-      also return the id_info parameter if the Client did not include
-      the id_info scope in the initial Authorization Request.
-
-   *  If the id_info parameter is included in the Token Response, the
-      Authorization Server MUST NOT include the id_token parameter.
+   *  If the client included the id_info scope in the initial
+      Authorization Request, the authorization server MUST include the
+      id_info parameter in the Token Response.  The authorization server
+      MAY also return the id_info parameter if the client did not
+      include the id_info scope in the initial Authorization Request.
 
    *  No change is made to the requirements of the standard OAuth 2.0
       [RFC6749] parameters in the response or any additional parameters
@@ -265,7 +273,6 @@ Table of Contents
      "expires_in": 3600,
      "id_info": {
        "sub": "b46b2f1f2b7686d",
-       "exp": 1311281970,
        "auth_time": 1311280969,
        "acr": "phr"
      }
@@ -275,14 +282,13 @@ Table of Contents
 
 5.1.  Token Endpoint
 
-   The Subject Identifier and Userinfo response fields MUST only be
-   returned from the token endpoint.
+   The sub and id_info response fields MUST only be returned from the
+   token endpoint.
 
-   The Subject Identifier and Userinfo MUST NOT be returned in the
-   Authorization Response (the URL redirect back to the client), as this
-   passes through the front channel and this shortcut provides no
-   mechanism to for the RP to validate the legitimacy of the value in
-   the response.
+   The sub and id_info values MUST NOT be returned in the Authorization
+   Response (the URL redirect back to the client), as this passes
+   through the front channel and provides no mechanism for the client to
+   validate the legitimacy of the value in the response.
 
 5.2.  Authorization Code Flow
 
@@ -292,11 +298,10 @@ Table of Contents
 
 5.3.  Tamper Resistance
 
-   The simplified response defined here provides no cryptographic
-   signature over the sub or id_info values.  Their integrity and
-   authenticity are solely reliant on the security of the transport
-   layer of the Token Endpoint and the preceding Authorization Code +
-   PKCE exchange.
+   The response defined here provides no cryptographic signature over
+   the sub or id_info values.  Their integrity and authenticity are
+   solely reliant on the security of the transport layer of the Token
+   Endpoint and the preceding Authorization Code + PKCE exchange.
 
 6.  IANA Considerations
 
@@ -306,11 +311,6 @@ Table of Contents
 
 7.1.  Normative References
 
-   [OpenID]   Sakimura, N., Bradley, J., Jones, M., de Medeiros, B., and
-              C. Mortimore, "OpenID Connect Core 1.0 incorporating
-              errata set 2", December 2023,
-              <https://openid.net/specs/openid-connect-core-1_0.html>.
-
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
@@ -319,6 +319,10 @@ Table of Contents
    [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
               <https://www.rfc-editor.org/rfc/rfc6749>.
+
+   [RFC7519]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web Token
+              (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
+              <https://www.rfc-editor.org/rfc/rfc7519>.
 
    [RFC7636]  Sakimura, N., Ed., Bradley, J., and N. Agarwal, "Proof Key
               for Code Exchange by OAuth Public Clients", RFC 7636,
