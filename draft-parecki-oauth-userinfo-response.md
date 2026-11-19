@@ -39,20 +39,22 @@ informative:
 
 --- abstract
 
-This specification defines an extension to the OAuth 2.0 Token Endpoint Response to allow a client to retrieve information about the user who authorized the request (e.g. a subject identifier or profile info) directly in the token response as plain JSON.
+This specification defines an extension to the OAuth 2.0 Token Endpoint Response to allow the authorization server to return an identifier for the user who authorized the request, and optionally additional information about that user, directly in the token response as plain JSON.
 
 --- middle
 
 # Introduction
 
-This specification defines an extension to the OAuth 2.0 [RFC6749] Token Endpoint Response to allow a client to retrieve information about the user who authorized the request directly in the token response.
+This specification defines an extension to the OAuth 2.0 [RFC6749] Token Endpoint Response to allow the authorization server to return an identifier for the user who authorized the request, and optionally additional information about that user, directly in the token response.
 
-OAuth 2.0 does not define a way for the client to learn anything about the user who authorized the request. Many clients only need to know who the user is, and do not require a signed statement about the user or their authentication from the authorization server. Returning this information as plain JSON in the token response avoids an additional request, as well as the overhead, complexity, and dependency management associated with parsing and validating a JSON Web Token (JWT).
+OAuth 2.0 does not define a way for the authorization server to tell the client which user authorized the request. Many clients only need to know a user identifier, for example to associate the authorization with a local account, and do not require a signed statement about the user or their authentication from the authorization server. Returning this information as plain JSON in the token response avoids an additional request, as well as the overhead, complexity, and dependency management associated with parsing and validating a JSON Web Token (JWT).
 
 This specification provides two different ways the authorization server can return info in the Token Response:
 
-* The "Subject Response", returning only the subject identifier of the user as a new top-level property `sub` in the token response
-* The "Userinfo Response", returning a new top-level property `id_info` as a JSON object containing claims about the user and their authentication.
+* The "Subject Response", returning only the user identifier as a new top-level property `sub` in the token response
+* The "Userinfo Response", returning a new top-level property `id_info` as a JSON object containing the user identifier and any additional claims the authorization server chooses to return.
+
+This specification only gives the authorization server a way to return a user identifier to the client. It does not prove the identity of the user, and the identifier says nothing about a real person: it is the authorization server's own identifier for the account that authorized the request.
 
 This mechanism MUST NOT be used when the client requires a signed statement about the user, such as when the client needs non-repudiation of the claims.
 
@@ -65,14 +67,14 @@ This specification uses the terms "authorization server", "client", "resource ow
 
 # Subject Response
 
-To signal its intent to receive the subject identifier of the user in the Token Response, the client uses a new scope value in the Authorization Request.
+To signal its intent to receive the user identifier in the Token Response, the client uses a new scope value in the Authorization Request.
 
 ## Requesting the Subject Response
 
 This specification defines a new scope value: `subject`
 
 `subject`
-: Requests that the authorization server return the subject identifier (`sub`) of the user directly in the Token Response.
+: Requests that the authorization server return the user identifier (`sub`) directly in the Token Response.
 
 ## Authorization Request
 
@@ -96,7 +98,7 @@ This specification defines a new field to be returned in the Token Endpoint resp
 
 In the Authorization Code flow, upon successful validation of the Authorization Code, the PKCE Code Verifier, and optional client authentication, the authorization server constructs a Token Response including the new field `sub`.
 
-The value of `sub` is a string that identifies the user who authorized the request. It has the same meaning as the `sub` claim defined in {{Section 4.1.2 of RFC7519}}. The value MUST be unique within the authorization server and MUST NOT be reassigned to a different user.
+The value of `sub` is a string containing the authorization server's identifier for the user who authorized the request. It has the same meaning as the `sub` claim defined in {{Section 4.1.2 of RFC7519}}. The value MUST be unique within the authorization server and MUST NOT be reassigned to a different user. The value is an opaque identifier that is only meaningful in the context of the authorization server that issued it.
 
 ## Response Rules
 
@@ -145,7 +147,7 @@ This specification defines a new field to be returned in the Token Endpoint resp
 
 In the Authorization Code flow, upon successful validation of the Authorization Code, the PKCE Code Verifier, and optional client authentication, the authorization server constructs a Token Response including the new field `id_info`.
 
-The value of `id_info` is a JSON object whose members are claims about the user and their authentication. The claim names and their meanings are those registered in the IANA "JSON Web Token Claims" registry established by [RFC7519]. The object MUST contain the `sub` claim, as described in {{subject-token-response}}. Which additional claims are returned is at the discretion of the authorization server, and may depend on the scopes granted.
+The value of `id_info` is a JSON object containing the user identifier and any additional claims the authorization server chooses to return. The claim names and their meanings are those registered in the IANA "JSON Web Token Claims" registry established by [RFC7519]. The object MUST contain the `sub` claim, as described in {{subject-token-response}}. Which additional claims are returned is at the discretion of the authorization server, and may depend on the scopes granted.
 
 ## Response Rules
 
@@ -160,13 +162,18 @@ Example successful token response
       "expires_in": 3600,
       "id_info": {
         "sub": "b46b2f1f2b7686d",
-        "auth_time": 1311280969,
-        "acr": "phr"
+        "name": "Alice Example",
+        "preferred_username": "alice",
+        "picture": "https://as.example.com/u/b46b2f1f2b7686d.jpg"
       }
     }
 
 
 # Security Considerations
+
+## Not a Proof of Identity
+
+The `sub` and `id_info` values are not an assertion of the user's identity. They tell the client which identifier the authorization server associates with the user who authorized the request, and nothing more. In particular, they do not establish that the user is a particular real person. Clients MUST treat the user identifier as scoped to the authorization server that returned it, and MUST NOT assume that the same value returned by a different authorization server refers to the same user.
 
 ## Token Endpoint
 
