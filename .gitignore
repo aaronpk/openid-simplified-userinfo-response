@@ -18,7 +18,7 @@
 /versioned/
 Gemfile.lock
 archive.json
-draft-openid-simplified-subject-response.xml
+draft-parecki-oauth-userinfo-response.xml
 package-lock.json
 report.xml
 !requirements.txt
