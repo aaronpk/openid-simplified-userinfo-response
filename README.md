@@ -4,7 +4,7 @@
 
 This is the working area for the individual Internet-Draft, "OAuth Userinfo Response".
 
-* [Editor's Copy](https://drafts.aaronpk.com/openid-simplified-userinfo-response/draft-parecki-oauth-userinfo-response.html)
+* [Editor's Copy](https://drafts.aaronpk.com/oauth-userinfo-response/draft-parecki-oauth-userinfo-response.html)
 
 <!--
 * [Datatracker Page](https://datatracker.ietf.org/doc/draft-parecki-oauth-userinfo-response)
@@ -14,7 +14,7 @@ This is the working area for the individual Internet-Draft, "OAuth Userinfo Resp
 ## Contributing
 
 See the
-[guidelines for contributions](https://github.com/aaronpk/openid-simplified-userinfo-response/blob/main/CONTRIBUTING.md).
+[guidelines for contributions](https://github.com/aaronpk/oauth-userinfo-response/blob/main/CONTRIBUTING.md).
 
 The contributing file also has tips on how to make contributions, if you
 don't already know how to do that.

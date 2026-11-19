@@ -18,8 +18,8 @@ venue:
   type: Working Group
   mail: oauth@ietf.org
   arch: https://mailarchive.ietf.org/arch/browse/oauth/
-  github: "aaronpk/openid-simplified-userinfo-response"
-  latest: "https://aaronpk.github.io/openid-simplified-userinfo-response/draft-parecki-oauth-userinfo-response.html"
+  github: "aaronpk/oauth-userinfo-response"
+  latest: "https://drafts.aaronpk.com/oauth-userinfo-response/draft-parecki-oauth-userinfo-response.html"
 
 author:
  -
@@ -141,7 +141,7 @@ Example request:
 
 Note: This is not limited to the [RFC6749] Authorization Code flow and applies the same to extensions such as Pushed Authorization Request [RFC9126].
 
-## Token Endpoint Response
+## Token Endpoint Response {#userinfo-token-response}
 
 This specification defines a new field to be returned in the Token Endpoint response: `userinfo`.
 
@@ -192,7 +192,33 @@ The response defined here provides no cryptographic signature over the `sub` or 
 
 # IANA Considerations
 
-This document has no IANA actions.
+## OAuth Parameters Registration
+
+IANA is requested to register the following values in the "OAuth Parameters" registry of the "OAuth Parameters" registry group established by {{Section 11.2 of RFC6749}}.
+
+Name:
+: `sub`
+
+Parameter Usage Location:
+: token response
+
+Change Controller:
+: IETF
+
+Reference:
+: {{subject-token-response}} of this document
+
+Name:
+: `userinfo`
+
+Parameter Usage Location:
+: token response
+
+Change Controller:
+: IETF
+
+Reference:
+: {{userinfo-token-response}} of this document
 
 
 --- back
