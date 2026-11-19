@@ -119,7 +119,7 @@ Table of Contents
       new top-level property sub in the token response
 
    *  The "Userinfo Response", returning a new top-level property
-      id_info as a JSON object containing the user identifier and any
+      userinfo as a JSON object containing the user identifier and any
       additional claims the authorization server chooses to return.
 
    This specification only gives the authorization server a way to
@@ -224,14 +224,14 @@ Table of Contents
 
 4.1.  Requesting the Userinfo Response
 
-   This specification defines a new scope value: id_info
+   This specification defines a new scope value: userinfo
 
-   id_info  Requests that the authorization server return information
+   userinfo  Requests that the authorization server return information
       about the user directly in the Token Response.
 
 4.2.  Authorization Request
 
-   The client SHOULD include the id_info scope along with any other
+   The client SHOULD include the userinfo scope along with any other
    required scopes in the Authorization Request.
 
    Example request:
@@ -239,7 +239,7 @@ Table of Contents
    GET /authorize?
      response_type=code
      &client_id=e69b14fe3fdcf1b432deb0c
-     &scope=id_info
+     &scope=userinfo
      &state=9e6d47801c833bfc8
      &redirect_uri=https%3A%2F%2Fclient.example.com%2Fcb
      &code_challenge=dy57vyachQ...&code_challenge_method=S256
@@ -251,14 +251,14 @@ Table of Contents
 4.3.  Token Endpoint Response
 
    This specification defines a new field to be returned in the Token
-   Endpoint response: id_info.
+   Endpoint response: userinfo.
 
    In the Authorization Code flow, upon successful validation of the
    Authorization Code, the PKCE Code Verifier, and optional client
    authentication, the authorization server constructs a Token Response
-   including the new field id_info.
+   including the new field userinfo.
 
-   The value of id_info is a JSON object containing the user identifier
+   The value of userinfo is a JSON object containing the user identifier
    and any additional claims the authorization server chooses to return.
    The claim names and their meanings are those registered in the IANA
    "JSON Web Token Claims" registry established by [RFC7519].  The
@@ -268,11 +268,12 @@ Table of Contents
 
 4.4.  Response Rules
 
-   *  If the client included the id_info scope in the initial
+   *  If the client included the userinfo scope in the initial
       Authorization Request, the authorization server MUST include the
-      id_info parameter in the Token Response.  The authorization server
-      MAY also return the id_info parameter if the client did not
-      include the id_info scope in the initial Authorization Request.
+      userinfo parameter in the Token Response.  The authorization
+      server MAY also return the userinfo parameter if the client did
+      not include the userinfo scope in the initial Authorization
+      Request.
 
    *  No change is made to the requirements of the standard OAuth 2.0
       [RFC6749] parameters in the response or any additional parameters
@@ -284,7 +285,7 @@ Table of Contents
      "access_token": "a5c64fbb3e03d973d3c7ef",
      "token_type": "Bearer",
      "expires_in": 3600,
-     "id_info": {
+     "userinfo": {
        "sub": "b46b2f1f2b7686d",
        "name": "Alice Example",
        "preferred_username": "alice",
@@ -296,7 +297,7 @@ Table of Contents
 
 5.1.  Not a Proof of Identity
 
-   The sub and id_info values are not an assertion of the user's
+   The sub and userinfo values are not an assertion of the user's
    identity.  They tell the client which identifier the authorization
    server associates with the user who authorized the request, and
    nothing more.  In particular, they do not establish that the user is
@@ -307,10 +308,10 @@ Table of Contents
 
 5.2.  Token Endpoint
 
-   The sub and id_info response fields MUST only be returned from the
+   The sub and userinfo response fields MUST only be returned from the
    token endpoint.
 
-   The sub and id_info values MUST NOT be returned in the Authorization
+   The sub and userinfo values MUST NOT be returned in the Authorization
    Response (the URL redirect back to the client), as this passes
    through the front channel and provides no mechanism for the client to
    validate the legitimacy of the value in the response.
@@ -324,7 +325,7 @@ Table of Contents
 5.4.  Tamper Resistance
 
    The response defined here provides no cryptographic signature over
-   the sub or id_info values.  Their integrity and authenticity are
+   the sub or userinfo values.  Their integrity and authenticity are
    solely reliant on the security of the transport layer of the Token
    Endpoint and the preceding Authorization Code + PKCE exchange.
 
