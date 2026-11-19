@@ -24,10 +24,10 @@ About This Document
    This note is to be removed before publishing as an RFC.
 
    The latest revision of this draft can be found at
-   https://aaronpk.github.io/openid-simplified-userinfo-response/draft-
-   parecki-oauth-userinfo-response.html.  Status information for this
-   document may be found at https://datatracker.ietf.org/doc/draft-
-   parecki-oauth-userinfo-response/.
+   https://drafts.aaronpk.com/oauth-userinfo-response/draft-parecki-
+   oauth-userinfo-response.html.  Status information for this document
+   may be found at https://datatracker.ietf.org/doc/draft-parecki-oauth-
+   userinfo-response/.
 
    Discussion of this document takes place on the Web Authorization
    Protocol Working Group mailing list (mailto:oauth@ietf.org), which is
@@ -35,7 +35,7 @@ About This Document
    Subscribe at https://www.ietf.org/mailman/listinfo/oauth/.
 
    Source for this draft and an issue tracker can be found at
-   https://github.com/aaronpk/openid-simplified-userinfo-response.
+   https://github.com/aaronpk/oauth-userinfo-response.
 
 Status of This Memo
 
@@ -88,6 +88,7 @@ Table of Contents
      5.3.  Authorization Code Flow
      5.4.  Tamper Resistance
    6.  IANA Considerations
+     6.1.  OAuth Parameters Registration
    7.  References
      7.1.  Normative References
      7.2.  Informative References
@@ -331,7 +332,27 @@ Table of Contents
 
 6.  IANA Considerations
 
-   This document has no IANA actions.
+6.1.  OAuth Parameters Registration
+
+   IANA is requested to register the following values in the "OAuth
+   Parameters" registry of the "OAuth Parameters" registry group
+   established by Section 11.2 of [RFC6749].
+
+   Name:  sub
+
+   Parameter Usage Location:  token response
+
+   Change Controller:  IETF
+
+   Reference:  Section 3.3 of this document
+
+   Name:  userinfo
+
+   Parameter Usage Location:  token response
+
+   Change Controller:  IETF
+
+   Reference:  Section 4.3 of this document
 
 7.  References
 
